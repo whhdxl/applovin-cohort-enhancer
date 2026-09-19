@@ -2,7 +2,7 @@
 
 ## 项目定位与边界
 
-为 AppLovin Ads 的 Cohort 报表增加可选计算列、收入增长系数、留存衰退系数和区间着色。当前阶段见 ROADMAP.md。
+为 AppLovin Ads 的 Cohort 报表增加可选计算列、收入增长系数、留存衰退／倍率系数和区间着色。当前阶段见 ROADMAP.md。
 
 ## 目录与文档职责
 

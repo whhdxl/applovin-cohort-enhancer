@@ -41,7 +41,7 @@
     controls.append(automatic);
     const tabs = make('nav', '', 'alx-tabs'); tabs.setAttribute('aria-label', '设置分类');
     const tabButtons = new Map();
-    for (const [id, text] of [['metrics', '计算指标'], ['growth', '增长系数'], ['retention', '留存衰退'], ['colors', '颜色规则']]) {
+    for (const [id, text] of [['metrics', '计算指标'], ['growth', '增长系数'], ['retention', '留存系数'], ['colors', '颜色规则']]) {
       const b = button(text, () => { tab = id; render(); }); tabButtons.set(id, b); tabs.append(b);
     }
     const searchInput = make('input', '', 'alx-search'); searchInput.type = 'search';
@@ -81,8 +81,8 @@
     function renderMetrics() {
       const snapshot = getSnapshot(), available = snapshot.available || new Set();
       const filtered = A.metrics.filter(m => tab === 'growth' ? m.id.startsWith('growth.')
-        : tab === 'retention' ? m.id.startsWith('retention_decay.')
-          : !m.id.startsWith('growth.') && !m.id.startsWith('retention_decay.'))
+        : tab === 'retention' ? m.id.startsWith('retention_')
+          : !m.id.startsWith('growth.') && !m.id.startsWith('retention_'))
         .filter(m => `${A.label(m, draft.alias)} ${m.group}`.toLowerCase().includes(search));
       const groups = new Map();
       for (const m of filtered) groups.set(m.group, [...groups.get(m.group) || [], m]);
@@ -141,9 +141,9 @@
     function render() {
       for (const [id, b] of tabButtons) b.setAttribute('aria-pressed', String(id === tab));
       note.textContent = tab === 'growth' ? '相同同期群分母下，RPD 与 ROAS 倍数等价，可分别选择。1.50× 表示增长 50%。'
-        : tab === 'retention' ? '按后期留存 ÷ 前期留存计算。0.65× 表示后期留存为前期的 65%，即相对衰退 35%。'
+        : tab === 'retention' ? '衰退系数按后期 ÷ 前期，倍率系数按前期 ÷ 后期，两者互为倒数；任一分母为零时显示 —。'
         : tab === 'colors' ? '默认配色按固定数值档位由浅至深，含周期指标；? 仍表示成熟度未知。自定义评价色仅用于成熟周期。Total 不着色。'
-          : '自动模式展示可计算的基础指标、ROAS 增长系数和留存衰退系数，避免重复开启 RPD 倍数。手动取消的列会记住，缺字段时暂时隐藏。';
+          : '自动模式展示可计算的基础指标、ROAS 增长系数和两类留存系数，避免重复开启 RPD 倍数。手动取消的列会记住，缺字段时暂时隐藏。';
       list.replaceChildren(); if (tab === 'colors') renderRules(); else renderMetrics(); updateSummary();
     }
     dialog.addEventListener('cancel', event => { if (saving) event.preventDefault(); });

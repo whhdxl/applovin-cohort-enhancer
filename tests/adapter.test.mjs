@@ -35,19 +35,22 @@ test('native totals are recomputed rather than averaging row ratios', () => {
     assert.equal(f.doc.querySelector('tfoot [data-alx-metric] span').textContent, '$25.00');
   } finally { f.close(); }
 });
-test('retention decay ratios render from matching native retention columns and have their own settings tab', async () => {
+test('retention decay and multiplier ratios render from matching native columns and share a settings tab', async () => {
   const retentionHeaders = ['D1 retention', 'D3 retention', 'D7 retention', 'D14 retention', 'D28 retention'];
   const retentionValues = ['40%', '30%', '20%', '15%', '10%'];
   const f = fixture({ names: [...headers, ...retentionHeaders], rows: [[...values, ...retentionValues]], total: [...values, ...retentionValues], content: true }); try {
     await wait();
     assert.equal(f.doc.querySelectorAll('th[data-alx-metric^="retention_decay."]').length, 6);
+    assert.equal(f.doc.querySelectorAll('th[data-alx-metric^="retention_multiplier."]').length, 6);
     assert.equal(f.doc.querySelector('tbody [data-alx-metric="retention_decay.3.1"] span').textContent, '0.75×');
     assert.equal(f.doc.querySelector('tfoot [data-alx-metric="retention_decay.28.7"] span').textContent, '0.50×');
+    assert.equal(f.doc.querySelector('tbody [data-alx-metric="retention_multiplier.1.3"] span').textContent, '1.33×');
+    assert.equal(f.doc.querySelector('tfoot [data-alx-metric="retention_multiplier.14.28"] span').textContent, '1.50×');
     f.doc.querySelector('.alx-toolbar-button').click();
     const panel = f.doc.querySelector('dialog');
-    [...panel.querySelectorAll('.alx-tabs button')].find(button => button.textContent === '留存衰退').click();
-    assert.equal(panel.querySelectorAll('.alx-option').length, 6);
-    assert.match(panel.querySelector('.alx-note').textContent, /相对衰退 35%/);
+    [...panel.querySelectorAll('.alx-tabs button')].find(button => button.textContent === '留存系数').click();
+    assert.equal(panel.querySelectorAll('.alx-option').length, 12);
+    assert.match(panel.querySelector('.alx-note').textContent, /互为倒数/);
   } finally { f.close(); }
 });
 test('native colors preserve text, omit Total and restore exact inline style', () => {
