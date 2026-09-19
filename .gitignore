@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.tmp/
+coverage/
+.env
+.env.*
+!.env.example
+!.env.*.example
+.DS_Store
+.idea/
+.vscode/
+.codex/
+.claude/
+*.log

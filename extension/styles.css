@@ -1,0 +1,84 @@
+.alx-toolbar-button {
+  font: inherit; color: var(--base-gray-700, #34363a); background: var(--bg-fill-hover, #f4f6f9);
+  border: 1px solid transparent; border-radius: 4px; padding: 4px 10px; margin-inline: 6px;
+  cursor: pointer; white-space: nowrap; line-height: 1.5;
+}
+.alx-toolbar-button:hover { background: var(--bg-fill-pressed, #e8ecf1); }
+.alx-toolbar-button:focus-visible, .alx-panel :focus-visible { outline: 2px solid #0066ff; outline-offset: 2px; }
+.alx-toolbar-button[data-error="true"] { color: #9c321d; }
+.alx-header { font-size: inherit; font-weight: 600; white-space: normal; padding: 12px 14px; text-align: right; background: var(--bg-base, #eef1f5); border-bottom: 1px solid #e3e7ed; }
+.alx-cell { padding: 10px 14px; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; border-bottom: 1px solid #eef1f5; }
+.alx-state { margin-left: 6px; color: #787d84; font-size: 10px; border-bottom: 1px dotted currentColor; cursor: help; }
+.alx-panel {
+  box-sizing: border-box; width: min(850px, calc(100vw - 40px)); max-height: calc(100vh - 48px);
+  border: 1px solid #d9dee5; border-radius: 8px; padding: 0; color: #34363a; background: #fff;
+  box-shadow: 0 12px 50px #00132629; font: 13px/1.5 var(--base-font-family-text, Inter), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+.alx-panel[open] { display: flex; flex-direction: column; }
+.alx-panel::backdrop { background: #00132655; }
+.alx-panel * { box-sizing: border-box; }
+.alx-panel h2, .alx-panel h3, .alx-panel p { margin: 0; }
+.alx-panel button, .alx-panel input, .alx-panel select { font: inherit; }
+.alx-panel button { cursor: pointer; background: #f4f6f9; border: 1px solid #e3e7ed; border-radius: 4px; color: #34363a; padding: 6px 12px; }
+.alx-panel button:hover { background: #e8ecf1; }
+.alx-panel button:disabled { cursor: wait; opacity: .6; }
+.alx-panel input:not([type="checkbox"]):not([type="color"]), .alx-panel select { border: 1px solid #d9dee5; border-radius: 4px; padding: 7px 9px; background: #fff; color: #34363a; min-width: 0; }
+.alx-panel input[type="checkbox"] { accent-color: #34363a; width: 15px; height: 15px; flex-shrink: 0; cursor: pointer; }
+.alx-panel-header { display: flex; justify-content: space-between; align-items: flex-start; padding: 22px 24px 18px; border-bottom: 1px solid #e8ecf1; }
+.alx-panel h2 { font-size: 19px; font-weight: 600; margin-bottom: 4px; }
+.alx-panel-header p { color: #666c75; font-size: 12px; }
+.alx-panel .alx-close { border: none; background: transparent; font-size: 24px; line-height: 1; padding: 4px 8px; }
+.alx-controls { display: flex; justify-content: space-between; gap: 16px; padding: 16px 24px; }
+.alx-inline { display: flex; align-items: center; gap: 8px; }
+.alx-tabs { display: flex; padding: 0 24px; border-bottom: 1px solid #e8ecf1; }
+.alx-tabs button { background: none; border: none; border-radius: 0; padding: 10px 16px; border-bottom: 2px solid transparent; color: #666c75; }
+.alx-tabs button[aria-pressed="true"] { color: #17191c; border-bottom-color: #17191c; font-weight: 600; }
+.alx-panel .alx-search { margin: 16px 24px 10px; flex-shrink: 0; }
+.alx-panel .alx-note { margin: 0 24px 12px; color: #626972; font-size: 12px; }
+.alx-list { overflow: auto; padding: 0 24px; min-height: 120px; flex: 1; overscroll-behavior: contain; }
+.alx-group { margin-bottom: 16px; }
+.alx-group-bar { display: flex; align-items: center; gap: 8px; background: #f4f6f9; padding: 6px 10px; }
+.alx-group h3 { font-size: 12px; font-weight: 600; flex: 1; }
+.alx-panel .alx-text-button { border: none; background: none; font-size: 12px; padding: 3px 5px; color: #4f5359; }
+.alx-panel .alx-text-button:hover { text-decoration: underline; }
+.alx-option { display: grid; grid-template-columns: 18px minmax(175px, 1fr) minmax(140px, 1.2fr); align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #eef1f5; cursor: pointer; }
+.alx-option:hover { background: #fafbfc; }
+.alx-option small { font-size: 11px; text-align: right; overflow-wrap: anywhere; }
+.alx-available { color: #587061; }
+.alx-unavailable { color: #85623d; }
+.alx-panel .alx-summary { padding: 12px 24px; background: #fafbfc; border-top: 1px solid #e8ecf1; font-size: 12px; }
+.alx-error { color: #b22e19; padding: 0 24px; }
+.alx-error:not(:empty) { padding-block: 8px; }
+.alx-footer { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 16px 24px; border-top: 1px solid #e8ecf1; }
+.alx-footer p { font-size: 11px; color: #626972; max-width: 470px; }
+.alx-actions { display: flex; gap: 8px; white-space: nowrap; }
+.alx-panel .alx-primary { color: white; background: #17191c; border-color: #17191c; min-width: 70px; }
+.alx-panel .alx-primary:hover { background: #34363a; }
+.alx-panel .alx-empty { padding: 24px 8px; color: #626972; }
+.alx-rule { display: grid; grid-template-columns: 18px minmax(160px, 1fr) 100px 100px 36px 44px; gap: 8px; align-items: center; border-bottom: 1px solid #e8ecf1; padding: 14px 0; }
+.alx-bound { display: flex; flex-direction: column; gap: 4px; font-size: 11px; }
+.alx-bound input { width: 100%; }
+.alx-rule input[type="color"] { border: none; padding: 0; width: 32px; height: 30px; background: transparent; cursor: pointer; }
+.alx-rule-hint { grid-column: 2 / -1; color: #626972; }
+.alx-panel .alx-add-rule { margin: 14px 0 20px; }
+@media (max-width: 650px) {
+  .alx-panel { width: calc(100vw - 16px); max-height: calc(100vh - 16px); }
+  .alx-controls, .alx-footer { flex-wrap: wrap; }
+  .alx-option { grid-template-columns: 18px 1fr; }
+  .alx-option small { grid-column: 2; text-align: left; }
+  .alx-rule { grid-template-columns: 18px 1fr 1fr; }
+  .alx-rule select { grid-column: 2 / -1; }
+  .alx-rule-hint { grid-column: 1 / -1; }
+}
+
+.alx-header { position: relative; padding-right: 20px; overflow-wrap: anywhere; }
+.alx-resize { position: absolute; right: 0; top: 0; bottom: 0; width: 8px; cursor: col-resize; touch-action: none; user-select: none; border-right: 2px solid #c3cbd5; }
+.alx-resize:hover, .alx-resize:focus-visible { background: #b8d9ff; outline: none; border-right-color: #0066ff; }
+.alx-color-default { padding: 12px 0; }
+
+.alx-controls { flex-wrap: wrap; }
+.alx-header[draggable="true"] { cursor: grab; }
+.alx-header[draggable="true"]:active { cursor: grabbing; }
+
+.alx-header { padding: 8px 12px 8px 8px; font-size: inherit; line-height: 1.35; }
+.alx-cell { padding: 8px; }
