@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { fixture, headers, values, removeColumn, wait } from './helpers.mjs';
+import { fixture, headers, values, removeColumn, source, wait } from './helpers.mjs';
 test('split header/body, append widths and restore original DOM', () => {
   const f = fixture(); try {
     const snap = f.A.adapter.discover(f.doc); assert.equal(snap.ok, true); assert.equal(snap.mode, 'cohort');
@@ -254,7 +254,7 @@ test('Date stays pinned and native-to-enhanced drag preserves original field map
     const nativeRow = f.doc.querySelector('thead tr');
     const date = nativeRow.cells[0], spend = nativeRow.cells[3];
     const originalHeaders = [...nativeRow.cells].filter(c => !c.dataset.alxOwned).map(c => c.textContent);
-    assert.equal(date.style.position, 'sticky'); assert.equal(date.style.left, '0px'); assert.equal(date.draggable, false);
+    assert.equal(date.style.position, 'relative'); assert.equal(date.style.left, 'auto'); assert.equal(date.style.boxShadow, 'none'); assert.equal(date.draggable, false);
     const target = f.doc.querySelector('th[data-alx-metric="arppu.1"]');
     spend.dispatchEvent(new f.w.Event('dragstart', { bubbles: true }));
     target.dispatchEvent(new f.w.Event('drop', { bubbles: true, cancelable: true })); await wait();
@@ -264,9 +264,39 @@ test('Date stays pinned and native-to-enhanced drag preserves original field map
     assert.equal(f.A.adapter.discover(f.doc).rows[0].values.spend.value, 1000);
     assert.equal(spend.style.transform, f.doc.querySelector('tbody tr').cells[3].style.transform);
     assert.equal(spend.style.transform, f.doc.querySelector('tfoot tr').cells[3].style.transform);
-    assert.equal(f.doc.querySelector('tbody tr').cells[0].style.position, 'sticky');
+    const scroller = f.doc.querySelector('.arco-table-body'); scroller.scrollLeft = 180;
+    scroller.dispatchEvent(new f.w.Event('scroll')); await wait(30);
+    assert.equal(date.style.transform, 'translateX(180px)');
+    assert.equal(f.doc.querySelector('tbody tr').cells[0].style.transform, 'translateX(180px)');
+    assert.match(date.style.boxShadow, /2px/);
     f.A.stop(); assert.equal(date.style.position, ''); assert.equal(spend.style.transform, ''); assert.equal(spend.hasAttribute('draggable'), false);
   } finally { f.close(); }
+});
+test('Week and Month are date-range anchors; no date-range column leaves the first metric unpinned', async () => {
+  for (const label of ['Week', 'Month']) {
+    const names = [...headers]; names[0] = label;
+    const f = fixture({ content: true, names }); try {
+      await wait(); const first = f.doc.querySelector('thead th');
+      assert.equal(first.textContent, label); assert.equal(first.draggable, false);
+      assert.equal(first.style.transform, 'translateX(0px)'); assert.equal(first.style.boxShadow, 'none');
+      const scroller = f.doc.querySelector('.arco-table-body'); scroller.scrollLeft = 120;
+      scroller.dispatchEvent(new f.w.Event('scroll')); await wait(30);
+      assert.equal(first.style.transform, 'translateX(120px)');
+      assert.equal(f.doc.querySelector('tbody tr').cells[0].style.transform, 'translateX(120px)');
+    } finally { f.close(); }
+  }
+  const names = [...headers]; names[0] = 'Campaign name';
+  const f = fixture({ content: true, names }); try {
+    await wait(); const first = f.doc.querySelector('thead th');
+    const scroller = f.doc.querySelector('.arco-table-body'); scroller.scrollLeft = 120;
+    scroller.dispatchEvent(new f.w.Event('scroll')); await wait(30);
+    assert.notEqual(first.style.transform, 'translateX(120px)'); assert.equal(first.style.boxShadow, '');
+  } finally { f.close(); }
+});
+test('all enhanced header, detail and Total cells are center aligned', () => {
+  const css = source('styles.css');
+  assert.match(css, /\.alx-header\s*\{[^}]*text-align:\s*center/s);
+  assert.match(css, /\.alx-cell\s*\{[^}]*text-align:\s*center/s);
 });
 test('pointer drag reorders native columns without a native sort click', async () => {
   const f = fixture({ content: true }); try {

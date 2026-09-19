@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "AppLovin Cohort Enhancer",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "在 AppLovin Cohort 报表中显示可选的付费率、ARPPU、RPD、增长系数、留存衰退／倍率系数及区间颜色。数据仅在当前页面处理。",
   "permissions": [
     "storage"

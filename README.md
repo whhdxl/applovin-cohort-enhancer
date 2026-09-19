@@ -2,7 +2,7 @@
 
 English | [简体中文](README.zh-CN.md)
 
-A desktop browser WebExtension that adds calculated columns and color rules to AppLovin Ads Cohort reports. The current version is `0.1.8` and has no third-party runtime dependencies.
+A desktop browser WebExtension that adds calculated columns and color rules to AppLovin Ads Cohort reports. The current version is `0.1.9` and has no third-party runtime dependencies.
 
 ## Features
 
@@ -45,7 +45,7 @@ Retention decay is calculated as later retention divided by earlier retention. F
 
 Only columns with a valid calculation path are shown. Without a custom layout, enhanced columns are appended after native columns; scroll horizontally to view them. Drag the right edge of an enhanced header to resize it from 96 to 480 px. Double-click to restore the metric default: 116 px for base metrics and 132 px for growth or retention multipliers. When the resize handle is focused, use Left/Right to adjust it and Home to reset it.
 
-Drag any native or enhanced header to reposition it across the full table, or focus a header and use Alt+Left/Right. Display mode, order, and width are saved per account and report. Date remains pinned at the left and cannot be moved; every other column can move across native and enhanced columns. Native column widths remain controlled by AppLovin, and manually configured enhanced widths are preserved.
+Drag any native or enhanced header to reposition it across the full table, or focus a header and use Alt+Left/Right. Display mode, order, and width are saved per account and report. The Date, Week, or Month dimension stays in its native position before horizontal scrolling and remains anchored at the left while scrolling; it cannot be moved. If no date-range dimension exists, the first metric is not pinned. Every other column can move across native and enhanced columns. Native column widths remain controlled by AppLovin, and manually configured enhanced widths are preserved. Enhanced headers, detail values, and Total values are center aligned.
 
 Hover over a value to inspect its formula, sources, and error details. `?` means cohort maturity is unverified; `≈` means the value was estimated from rounded ROAS or CPI. Currency symbols follow the native report. Enter percentages in color rules as displayed values, so `5` means `5%`; a growth multiplier of `1.5` means `1.50×`.
 
@@ -67,7 +67,7 @@ npm run preview
 
 - `npm test` covers formulas, invalid input, DOM adaptation, Total rows, refresh behavior, account isolation, Apply/Cancel, and restoration.
 - `npm run check` validates JavaScript syntax, the extension manifest, asset references, and static network/HTML-injection boundaries.
-- `npm run package` creates `dist/applovin-cohort-enhancer-0.1.8.zip` containing extension files only.
+- `npm run package` creates `dist/applovin-cohort-enhancer-0.1.9.zip` containing extension files only.
 - `npm run preview` serves a synthetic report at `127.0.0.1:4173`. Open `/analytics/reports?accountId=demo&reportId=preview`. The demo reuses the extension source and stores demo preferences on localhost through a demo-only storage substitute.
 
 ## Documentation

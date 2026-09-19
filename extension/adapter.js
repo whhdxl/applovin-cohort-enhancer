@@ -190,39 +190,44 @@
       // This preserves native sort/resize handlers and stable field-to-cell mapping.
       const nativeCols = snapshot.headers.map((h, i) => ({ id: `native:${A.normalize(h.text)}:${snapshot.headers.slice(0, i).filter(x => x.text === h.text).length}`, cell: h.cell }));
       const columns = [...nativeCols, ...selected.map(m => ({ id: m.id, cell: snapshot.headRow.querySelector(`[data-alx-metric="${m.id}"]`) }))];
-      const date = nativeCols.find(c => A.normalize(c.cell.textContent) === 'date');
+      const dateRangeLabels = new Set(['date', 'week', 'month']);
+      const dateRange = nativeCols.find(c => dateRangeLabels.has(A.normalize(c.cell.textContent)));
       const ids = columns.map(c => c.id);
       const saved = settings.tableOrders?.[settings.displayMode] || [];
       const visual = [...new Set([...saved.filter(id => ids.includes(id)), ...ids])];
-      if (date) { visual.splice(visual.indexOf(date.id), 1); visual.unshift(date.id); }
+      if (dateRange) { visual.splice(visual.indexOf(dateRange.id), 1); visual.unshift(dateRange.id); }
       const regularRows = snapshot.rows.filter(row => [...row.element.cells].every(cell => cell.colSpan === 1));
       const supported = regularRows.length === snapshot.rows.length;
+      const scrollRoot = snapshot.root.querySelector('.arco-table-body');
+      const listen = (el, event, fn) => { el.addEventListener(event, fn); cleanups.push(() => el.removeEventListener(event, fn)); };
       relayout = () => {
         const sizes = [...snapshot.tables[0].querySelectorAll('col')].map(col => parseFloat(col.style.width));
         const original = new Map(), target = new Map(); let sum = 0;
         ids.forEach((id, i) => { original.set(id, sum); sum += sizes[i]; }); sum = 0;
         visual.forEach(id => { target.set(id, sum); sum += sizes[ids.indexOf(id)]; });
+        const scrollLeft = Math.max(0, scrollRoot?.scrollLeft || 0);
         for (const [index, column] of columns.entries()) {
           const cells = [column.cell, ...regularRows.map(row => row.element.cells[index])];
           for (const cell of cells) {
             if (!cell) continue;
-            const pinned = column.id === date?.id;
-            writeStyle(cell, 'position', pinned ? 'sticky' : 'relative');
-            writeStyle(cell, 'left', pinned ? `${original.get(column.id)}px` : 'auto');
+            const pinned = column.id === dateRange?.id;
+            writeStyle(cell, 'position', 'relative');
+            writeStyle(cell, 'left', 'auto');
             writeStyle(cell, 'right', 'auto');
-            writeStyle(cell, 'transform', `translateX(${(supported ? target.get(column.id) : original.get(column.id)) - original.get(column.id)}px)`);
-            writeStyle(cell, 'z-index', pinned ? (cell.tagName === 'TH' ? '5' : '4') : '1');
+            const offset = (supported ? target.get(column.id) : original.get(column.id)) - original.get(column.id) + (pinned ? scrollLeft : 0);
+            writeStyle(cell, 'transform', `translateX(${offset}px)`);
+            writeStyle(cell, 'z-index', pinned && scrollLeft > 0 ? (cell.tagName === 'TH' ? '5' : '4') : '1');
             if (pinned) {
               writeStyle(cell, 'background-color', cell.tagName === 'TH' || cell.parentElement.parentElement.tagName === 'TFOOT' ? '#eef1f5' : '#ffffff');
-              writeStyle(cell, 'box-shadow', '2px 0 0 #d9dee5');
+              writeStyle(cell, 'box-shadow', scrollLeft > 0 ? '2px 0 0 #d9dee5' : 'none');
             }
           }
         }
       };
       if (supported) relayout();
-      const listen = (el, event, fn) => { el.addEventListener(event, fn); cleanups.push(() => el.removeEventListener(event, fn)); };
+      if (supported && dateRange && scrollRoot) listen(scrollRoot, 'scroll', relayout);
       for (const column of columns) {
-        if (!supported || column.id === date?.id) continue;
+        if (!supported || column.id === dateRange?.id) continue;
         const cell = column.cell, oldDrag = cell.getAttribute('draggable'), oldTab = cell.getAttribute('tabindex');
         cell.draggable = false; cell.tabIndex = 0; writeStyle(cell, 'cursor', 'grab'); writeStyle(cell, 'user-select', 'none');
         cleanups.push(() => { for (const [key, value] of [['draggable', oldDrag], ['tabindex', oldTab]]) value === null ? cell.removeAttribute(key) : cell.setAttribute(key, value); });
@@ -234,7 +239,7 @@
         listen(cell, 'dragover', event => { if (draggedId && draggedId !== column.id) { event.preventDefault(); event.stopPropagation(); } });
         const move = (source, targetId) => {
           const order = [...visual], from = order.indexOf(source), to = order.indexOf(targetId);
-          if (from < 0 || to < 0 || source === date?.id || targetId === date?.id) return;
+          if (from < 0 || to < 0 || source === dateRange?.id || targetId === dateRange?.id) return;
           order.splice(from, 1); order.splice(to, 0, source); onReorder(source, targetId, order);
         };
         listen(cell, 'pointerdown', event => {
