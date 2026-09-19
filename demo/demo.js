@@ -5,14 +5,14 @@
     async get(key) { return { [key]: JSON.parse(localStorage.getItem(key) || 'null') }; },
     async set(items) { for (const [key, value] of Object.entries(items)) { localStorage.setItem(key, JSON.stringify(value)); for (const fn of listeners) fn({ [key]: { newValue: value } }, 'local'); } }
   }, onChanged: { addListener(fn) { listeners.add(fn); }, removeListener(fn) { listeners.delete(fn); } } } };
-  const names = ['Date', 'Campaign ID', 'Installs', 'Spend', 'CPI', 'D1 IAP rev', 'D1 unique purchasers', 'D7 IAP rev', 'D7 unique purchasers', 'D1 total rev', 'D7 total rev'];
+  const names = ['Date', 'Campaign ID', 'Installs', 'Spend', 'CPI', 'D1 IAP rev', 'D1 unique purchasers', 'D7 IAP rev', 'D7 unique purchasers', 'D1 total rev', 'D7 total rev', 'D1 retention', 'D3 retention', 'D7 retention', 'D14 retention', 'D28 retention'];
   let allColumns = true, run = 0;
   function draw() {
     const rows = [
-      ['2026-09-07 – 09-13', 'Demo / iOS', '100', '$1,000.00', '$10.00', '$200.00', '20', `$${500 + run * 10}.00`, '25', '$240.00', '$600.00'],
-      ['2026-09-07 – 09-13', 'Demo / Android', '200', '$800.00', '$4.00', '$120.00', '15', '$320.00', '28', '$200.00', '$480.00']
+      ['2026-09-07 – 09-13', 'Demo / iOS', '100', '$1,000.00', '$10.00', '$200.00', '20', `$${500 + run * 10}.00`, '25', '$240.00', '$600.00', '42%', '31%', '22%', '16%', '11%'],
+      ['2026-09-07 – 09-13', 'Demo / Android', '200', '$800.00', '$4.00', '$120.00', '15', '$320.00', '28', '$200.00', '$480.00', '38%', '29%', '19%', '13%', '9%']
     ];
-    const total = ['Total', '', '300', '$1,800.00', '$6.00', '$320.00', '35', `$${820 + run * 10}.00`, '53', '$440.00', '$1,080.00'];
+    const total = ['Total', '', '300', '$1,800.00', '$6.00', '$320.00', '35', `$${820 + run * 10}.00`, '53', '$440.00', '$1,080.00', '39.33%', '29.67%', '20%', '14%', '9.67%'];
     const included = names.map((_, i) => i).filter(i => allColumns || ![6, 8].includes(i));
     const root = document.createElement('div'); root.className = 'arco-table';
     for (const head of [true, false]) {

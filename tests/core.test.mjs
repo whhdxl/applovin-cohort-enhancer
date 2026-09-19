@@ -4,11 +4,17 @@ import '../extension/core.js';
 const A = globalThis.ALX;
 const row = values => Object.fromEntries(Object.entries(values).map(([id, value]) => [id, A.parseValue(value, A.fields.get(id))]));
 const calc = (id, values) => A.calculate(A.byId.get(id), row(values));
-test('catalog has 30 base metrics and all 42 unique growth combinations', () => {
-  assert.equal(A.metrics.length, 72); assert.equal(A.byId.size, 72);
+test('catalog has 30 base metrics, 42 revenue growth combinations and 6 retention decay ratios', () => {
+  assert.equal(A.metrics.length, 78); assert.equal(A.byId.size, 78);
   for (const type of A.types) for (const family of ['roas', 'rpd']) for (const [hi, lo] of A.pairs) {
     const result = calc(`growth.${family}.${type}.${hi}.${lo}`, { [`${type}.rev.${hi}`]: '$150', [`${type}.rev.${lo}`]: '$100' });
     assert.equal(result.value, 1.5);
+  }
+  assert.deepEqual(A.retentionPairs, [[3, 1], [7, 3], [14, 7], [28, 7], [7, 1], [28, 1]]);
+  for (const [hi, lo] of A.retentionPairs) {
+    const result = calc(`retention_decay.${hi}.${lo}`, { [`retention.${hi}`]: '30%', [`retention.${lo}`]: '60%' });
+    assert.equal(result.value, .5);
+    assert.equal(A.format(A.byId.get(`retention_decay.${hi}.${lo}`), result), '0.50×');
   }
 });
 test('real display-value regression and independent income types', () => {
@@ -28,6 +34,8 @@ test('capability depends on fields, not cell values', () => {
   assert.equal(A.capability(A.byId.get('arppu.0'), new Set(['spend', 'iap.roas.0', 'payers.0'])).available, true);
   assert.equal(A.capability(A.byId.get('arppu.0'), new Set(['iap.rev.0'])).available, false);
   assert.equal(A.capability(A.byId.get('growth.roas.iap.7.3'), new Set(['iap.roas.7', 'iap.roas.3'])).available, true);
+  assert.equal(A.capability(A.byId.get('retention_decay.7.3'), new Set(['retention.7', 'retention.3'])).available, true);
+  assert.equal(A.capability(A.byId.get('retention_decay.7.3'), new Set(['retention.7'])).available, false);
 });
 test('fallbacks are estimates, do not replace available direct revenue', () => {
   const data = { spend: '$1000', 'iap.roas.0': '2.14%', 'payers.0': '2' };
@@ -41,6 +49,8 @@ test('zero numerator stays zero; zero denominator and contradictory counts fail'
   assert.equal(calc('payer_rate.0', { installs: '5', 'payers.0': '6' }).value, null);
   assert.equal(calc('rpd.iap.0', { installs: '0', cpi: '$10', 'iap.roas.0': '20%' }).value, null);
   assert.equal(calc('growth.roas.iap.7.3', { 'iap.rev.7': '$150', 'iap.rev.3': '$0', 'iap.roas.7': '3%', 'iap.roas.3': '2%' }).value, null);
+  assert.equal(calc('retention_decay.7.3', { 'retention.7': '0%', 'retention.3': '20%' }).value, 0);
+  assert.equal(calc('retention_decay.7.3', { 'retention.7': '10%', 'retention.3': '0%' }).value, null);
 });
 test('invalid fields, conflicting currency and revenue mismatch are visible', () => {
   assert.equal(calc('arppu.0', { 'iap.rev.0': '$bad', 'payers.0': '5', spend: '$1000', 'iap.roas.0': '10%' }).value, null);
@@ -79,6 +89,8 @@ test('automatic report metrics adapt, remember exclusions and migrate legacy def
   const ids = () => A.visibleMetrics(settings, fields).map(m => m.id);
   assert.ok(ids().includes('arppu.0')); assert.ok(ids().includes('rpd.iap.0'));
   assert.ok(ids().includes('growth.roas.iap.7.1')); assert.ok(!ids().includes('growth.rpd.iap.7.1'));
+  fields.add('retention.3'); fields.add('retention.7');
+  assert.ok(ids().includes('retention_decay.7.3'));
   settings.overrides['arppu.0'] = false; fields.delete('payers.0'); fields.add('payers.0');
   assert.ok(!ids().includes('arppu.0'));
   assert.equal(A.normalizeSettings({ version: 1, selected: A.defaults().selected }).autoSelect, true);

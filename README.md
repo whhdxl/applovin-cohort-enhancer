@@ -2,12 +2,13 @@
 
 English | [简体中文](README.zh-CN.md)
 
-A desktop browser WebExtension that adds calculated columns and color rules to AppLovin Ads Cohort reports. The current version is `0.1.6` and has no third-party runtime dependencies.
+A desktop browser WebExtension that adds calculated columns and color rules to AppLovin Ads Cohort reports. The current version is `0.1.7` and has no third-party runtime dependencies.
 
 ## Features
 
 - 30 base metrics across D0, D1, D3, D7, D14, and D28: Unique Payer Rate, IAP ARPPU, and IAP/IAA/Total RPD.
 - 42 growth multipliers: ROAS/RPD × three revenue types × D3/D1, D7/D3, D14/D7, D28/D14, D7/D1, D14/D1, and D28/D1.
+- 6 retention decay ratios: D3/D1, D7/D3, D14/D7, D28/D7, D7/D1, and D28/D1.
 - RPD can be renamed to Cohort ARPU while keeping Installs as the denominator.
 - An **Enhanced Columns** entry next to the native Columns control, with search, individual and grouped selection, Apply, and Cancel.
 - Columns whose required source fields are unavailable remain hidden without losing their selection. They reappear when those fields return. Zero denominators and invalid values keep the column visible and display `—`.
@@ -35,11 +36,13 @@ The script does not overwrite an existing project, install Xcode, configure sign
 
 ## Usage
 
-The display-mode button next to **Enhanced Columns** defaults to **Display: by metric**. It groups payer rate, ARPPU, revenue-specific RPD, and ROAS/RPD multipliers, then orders each group by cohort day. Switch to **Display: by period** to group by D0, D1, D3, and later periods; growth multipliers are grouped by their later observation day. Both modes provide a default grouping and remember independent custom layouts. Legacy drag order is migrated to period mode.
+The display-mode button next to **Enhanced Columns** defaults to **Display: by metric**. It groups payer rate, ARPPU, revenue-specific RPD, ROAS/RPD multipliers, and retention decay ratios, then orders each group by cohort day. Switch to **Display: by period** to group by D0, D1, D3, and later periods; multipliers are grouped by their later observation day. Both modes provide a default grouping and remember independent custom layouts. Legacy drag order is migrated to period mode.
 
-**Automatically show key metrics available in this report** is enabled by default. It displays calculable D0/D1/D3/D7/D14/D28 base metrics and ROAS multipliers; RPD multipliers are not enabled by default to avoid duplication. Manually hidden columns stay hidden. Disable automatic mode for complete manual selection. Legacy six-column defaults are upgraded automatically, while existing custom selections remain in manual mode until automatic mode is enabled in the panel.
+**Automatically show key metrics available in this report** is enabled by default. It displays calculable D0/D1/D3/D7/D14/D28 base metrics, ROAS multipliers, and retention decay ratios; RPD multipliers are not enabled by default to avoid duplication. Manually hidden columns stay hidden. Disable automatic mode for complete manual selection. Legacy six-column defaults are upgraded automatically, while existing custom selections remain in manual mode until automatic mode is enabled in the panel.
 
-Only columns with a valid calculation path are shown. Without a custom layout, enhanced columns are appended after native columns; scroll horizontally to view them. Drag the right edge of an enhanced header to resize it from 96 to 480 px. Double-click to restore the metric default: 116 px for base metrics and 132 px for growth multipliers. When the resize handle is focused, use Left/Right to adjust it and Home to reset it.
+Retention decay is calculated as later retention divided by earlier retention. For example, `0.65×` means later retention is 65% of earlier retention, a relative decline of 35%. A ratio is hidden when either native retention column is unavailable; an earlier retention value of zero produces `—`.
+
+Only columns with a valid calculation path are shown. Without a custom layout, enhanced columns are appended after native columns; scroll horizontally to view them. Drag the right edge of an enhanced header to resize it from 96 to 480 px. Double-click to restore the metric default: 116 px for base metrics and 132 px for growth or retention multipliers. When the resize handle is focused, use Left/Right to adjust it and Home to reset it.
 
 Drag any native or enhanced header to reposition it across the full table, or focus a header and use Alt+Left/Right. Display mode, order, and width are saved per account and report. Date remains pinned at the left and cannot be moved; every other column can move across native and enhanced columns. Native column widths remain controlled by AppLovin, and manually configured enhanced widths are preserved.
 
@@ -63,7 +66,7 @@ npm run preview
 
 - `npm test` covers formulas, invalid input, DOM adaptation, Total rows, refresh behavior, account isolation, Apply/Cancel, and restoration.
 - `npm run check` validates JavaScript syntax, the extension manifest, asset references, and static network/HTML-injection boundaries.
-- `npm run package` creates `dist/applovin-cohort-enhancer-0.1.6.zip` containing extension files only.
+- `npm run package` creates `dist/applovin-cohort-enhancer-0.1.7.zip` containing extension files only.
 - `npm run preview` serves a synthetic report at `127.0.0.1:4173`. Open `/analytics/reports?accountId=demo&reportId=preview`. The demo reuses the extension source and stores demo preferences on localhost through a demo-only storage substitute.
 
 ## Documentation
