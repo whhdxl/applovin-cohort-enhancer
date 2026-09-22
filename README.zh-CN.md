@@ -2,7 +2,7 @@
 
 [English](README.md) | 简体中文
 
-为 AppLovin Ads 的 Cohort 报表增加计算列和颜色设置的桌面浏览器 WebExtension。当前版本 `0.1.9`，无第三方运行时依赖。
+为 AppLovin Ads 的 Cohort 报表增加计算列和颜色设置的桌面浏览器 WebExtension。当前版本 `0.1.10`，无第三方运行时依赖。
 
 ## 当前功能
 
@@ -67,7 +67,7 @@ npm run preview
 
 - `npm test`：公式、异常输入、DOM 适配、Total、刷新、账号隔离、应用／取消和恢复测试。
 - `npm run check`：JavaScript 语法、清单及资源引用、静态网络与 HTML 注入边界检查。
-- `npm run package`：生成 `dist/applovin-cohort-enhancer-0.1.9.zip`，仅包含扩展文件。
+- `npm run package`：生成 `dist/applovin-cohort-enhancer-0.1.10.zip`，仅包含扩展文件。
 - `npm run preview`：在 `127.0.0.1:4173` 提供合成报表，访问 `/analytics/reports?accountId=demo&reportId=preview`。演示页复用扩展源码，通过仅存在于 demo 的存储替身将演示偏好保存在 localhost。
 
 ## 文档入口
@@ -81,3 +81,5 @@ npm run preview
 
 - [Microsoft Edge 的 Chrome 扩展移植说明](https://learn.microsoft.com/en-us/microsoft-edge/extensions/developer-guide/port-chrome-extension)：共用清单与扩展 API，仍需浏览器实测。
 - [Apple Safari Web Extension 打包说明](https://developer.apple.com/documentation/safariservices/packaging-a-web-extension-for-safari)：Safari 宿主应用和 Xcode 工程生成方式。
+
+Run 后新增的 Primary columns 按官方顺序插入左侧维度区，已有列保留手动相对顺序。

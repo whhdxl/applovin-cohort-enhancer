@@ -247,6 +247,24 @@ function visualHeaders(doc) {
   let offset = 0;
   return cells.map((cell, i) => { const x = offset + (Number(cell.style.transform.match(/translateX\(([-\d.]+)px\)/)?.[1]) || 0); offset += widths[i]; return { cell, x }; }).sort((a, b) => a.x - b.x).map(v => v.cell);
 }
+test('new primary columns precede saved metrics with and without Date in both modes', () => {
+  for (const displayMode of ['category', 'period']) for (const dated of [true, false]) {
+    const names = [...(dated ? ['Date'] : []), 'Hour (UTC)', 'Campaign name', 'Installs', 'Spend'];
+    const data = [...(dated ? ['2026-01-01'] : []), '12', 'Synthetic campaign', '100', '$200'];
+    const f = fixture({ names, rows: [data], total: data }); try {
+      const renderer = f.A.adapter.renderer(f.doc);
+      const saved = [...(dated ? ['native:date:0'] : []), 'native:spend:0', 'native:installs:0'];
+      const settings = { ...f.A.defaults(), autoSelect: false, selected: [], displayMode, tableOrders: { [displayMode]: saved } };
+      renderer.render(f.A.adapter.discover(f.doc), settings);
+      assert.deepEqual(visualHeaders(f.doc).map(c => c.textContent), [...(dated ? ['Date'] : []), 'Hour (UTC)', 'Campaign name', 'Spend', 'Installs']);
+      for (const row of f.doc.querySelectorAll('tbody tr, tfoot tr')) {
+        for (let i = 0; i < names.length; i++) assert.equal(row.cells[i].style.transform, f.doc.querySelector('thead tr').cells[i].style.transform);
+      }
+      assert.equal(f.A.adapter.discover(f.doc).rows[0].values.installs.value, 100);
+      renderer.reset();
+    } finally { f.close(); }
+  }
+});
 test('Date stays pinned and native-to-enhanced drag preserves original field mapping', async () => {
   const names = [...headers]; names[0] = 'Date';
   const f = fixture({ content: true, names }); try {

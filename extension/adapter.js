@@ -195,6 +195,18 @@
       const ids = columns.map(c => c.id);
       const saved = settings.tableOrders?.[settings.displayMode] || [];
       const visual = [...new Set([...saved.filter(id => ids.includes(id)), ...ids])];
+      // New grouping dimensions belong before metrics, not after the saved layout.
+      const firstMetric = snapshot.headers.findIndex(h => h.field);
+      const primary = nativeCols.slice(0, firstMetric < 0 ? nativeCols.length : firstMetric);
+      for (let i = primary.length - 1; i >= 0; i--) {
+        const column = primary[i];
+        if (saved.includes(column.id)) continue;
+        visual.splice(visual.indexOf(column.id), 1);
+        const next = primary.slice(i + 1).find(c => visual.includes(c.id));
+        const previous = primary.slice(0, i).reverse().find(c => saved.includes(c.id));
+        const index = next ? visual.indexOf(next.id) : previous ? visual.indexOf(previous.id) + 1 : 0;
+        visual.splice(index, 0, column.id);
+      }
       if (dateRange) { visual.splice(visual.indexOf(dateRange.id), 1); visual.unshift(dateRange.id); }
       const regularRows = snapshot.rows.filter(row => [...row.element.cells].every(cell => cell.colSpan === 1));
       const supported = regularRows.length === snapshot.rows.length;

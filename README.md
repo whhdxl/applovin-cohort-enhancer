@@ -2,7 +2,7 @@
 
 English | [简体中文](README.zh-CN.md)
 
-A desktop browser WebExtension that adds calculated columns and color rules to AppLovin Ads Cohort reports. The current version is `0.1.9` and has no third-party runtime dependencies.
+A desktop browser WebExtension that adds calculated columns and color rules to AppLovin Ads Cohort reports. The current version is `0.1.10` and has no third-party runtime dependencies.
 
 ## Features
 
@@ -67,7 +67,7 @@ npm run preview
 
 - `npm test` covers formulas, invalid input, DOM adaptation, Total rows, refresh behavior, account isolation, Apply/Cancel, and restoration.
 - `npm run check` validates JavaScript syntax, the extension manifest, asset references, and static network/HTML-injection boundaries.
-- `npm run package` creates `dist/applovin-cohort-enhancer-0.1.9.zip` containing extension files only.
+- `npm run package` creates `dist/applovin-cohort-enhancer-0.1.10.zip` containing extension files only.
 - `npm run preview` serves a synthetic report at `127.0.0.1:4173`. Open `/analytics/reports?accountId=demo&reportId=preview`. The demo reuses the extension source and stores demo preferences on localhost through a demo-only storage substitute.
 
 ## Documentation
@@ -81,3 +81,5 @@ npm run preview
 
 - [Port a Chrome extension to Microsoft Edge](https://learn.microsoft.com/en-us/microsoft-edge/extensions/developer-guide/port-chrome-extension): the manifest and extension APIs are shared, but each browser still requires real-world validation.
 - [Packaging a Web Extension for Safari](https://developer.apple.com/documentation/safariservices/packaging-a-web-extension-for-safari): explains Safari host apps and Xcode project generation.
+
+New Primary columns added after Run are inserted into the left-hand dimension area in native order, while existing columns retain their custom relative order.
