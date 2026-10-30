@@ -1,9 +1,10 @@
 {
   "name": "applovin-cohort-enhancer",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "node scripts/build.mjs",
     "test": "node --test tests/*.test.mjs",
     "check": "node scripts/check.mjs",
     "preview": "node scripts/serve.mjs",

@@ -82,3 +82,6 @@
 
 .alx-header { padding: 8px 12px 8px 8px; font-size: inherit; line-height: 1.35; }
 .alx-cell { padding: 8px; }
+.MuiDataGrid-root .alx-mui-cell { justify-content: center; text-align: center; }
+.MuiDataGrid-root .alx-mui-header .MuiDataGrid-columnHeaderTitleContainer { justify-content: center; }
+.MuiDataGrid-root .alx-mui-header { position: relative; }

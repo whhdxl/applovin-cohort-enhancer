@@ -2,7 +2,7 @@
 
 [English](README.md) | 简体中文
 
-为 AppLovin Ads 的 Cohort 报表增加计算列和颜色设置的桌面浏览器 WebExtension。当前版本 `0.1.10`，无第三方运行时依赖。
+为 AppLovin Ads 的 Cohort 报表增加计算列和颜色设置的桌面浏览器 WebExtension。当前版本 `0.1.11`，无第三方运行时依赖。
 
 ## 当前功能
 
@@ -47,11 +47,11 @@ Safari 不能直接加载此 ZIP，需要完整 Xcode 与 Apple 的 Safari Web E
 
 拖动原生或增强列表头可跨列调整显示位置，或聚焦表头后使用 Alt＋左右方向键移动。展示类型、顺序和宽度按账号及报表保存。Date／Week／Month 时间维度在未横向滚动时保持原生位置，滚动后固定在最左侧且不参与换位；没有时间维度时不固定第一个指标列。其他列均可跨原生／增强列移动。原生列宽仍用官方控件，手动调过的增强列宽度会保留。增强列表头、明细和 Total 内容统一居中。
 
-悬浮数值查看公式、来源与异常说明。`?` 表示成熟度待确认；`≈` 表示从已舍入的 ROAS 或 CPI 估算。金额保留原生币种标识。颜色规则中的百分数直接填写显示值，例如 `5` 表示 `5%`；增长系数 `1.5` 表示 `1.50×`。
+悬浮数值查看公式、来源与异常说明。`?` 表示成熟度待确认；`≈` 表示从已舍入的 ROAS 或 CPI 估算。Arco 金额保留原生币种标识；MUI 模型未提供已核实的币种代码，增强金额暂不附币种符号。MUI 的成熟度说明放在数值悬浮提示中。颜色规则中的百分数直接填写显示值，例如 `5` 表示 `5%`；增长系数 `1.5` 表示 `1.50×`。
 
 官方保存、分享、排序及导出不包含增强列。插件不调用报表接口、不上传报表、不访问登录凭据；本地存储仅保存列选择、名称、顺序、列宽和颜色偏好。
 
-全表调序只调整屏幕显示位置，保留原生 DOM 列顺序和字段映射；官方导出仍使用官方顺序。若表格存在合并单元格，本版不应用全表换位及 Date 固定，以免表头与汇总错位。
+同时支持旧版 Arco 和新版虚拟化 MUI DataGrid。Arco 通过视觉位移保留原生 DOM 顺序；MUI 通过网格列接口调整展示顺序和固定列，并读取当前报表已加载的行模型，屏幕外的已选列仍可参与计算。增强列排除在网格导出之外，不替换官方导出流程。关闭增强会隐藏注入列并恢复原生顺序和固定状态；刷新页面清除注入定义。Arco 合并单元格场景不应用全表换位和 Date 固定。
 
 ## 开发与验证
 
@@ -59,15 +59,17 @@ Safari 不能直接加载此 ZIP，需要完整 Xcode 与 Apple 的 Safari Web E
 
 ```sh
 npm ci
+npm run build
 npm test
 npm run check
 npm run package
 npm run preview
 ```
 
+- `npm run build`：从共享计算层和 MUI 适配源码生成页面环境运行文件；修改任一源码后执行。
 - `npm test`：公式、异常输入、DOM 适配、Total、刷新、账号隔离、应用／取消和恢复测试。
 - `npm run check`：JavaScript 语法、清单及资源引用、静态网络与 HTML 注入边界检查。
-- `npm run package`：生成 `dist/applovin-cohort-enhancer-0.1.10.zip`，仅包含扩展文件。
+- `npm run package`：生成 `dist/applovin-cohort-enhancer-0.1.11.zip`，仅包含扩展文件。
 - `npm run preview`：在 `127.0.0.1:4173` 提供合成报表，访问 `/analytics/reports?accountId=demo&reportId=preview`。演示页复用扩展源码，通过仅存在于 demo 的存储替身将演示偏好保存在 localhost。
 
 ## 文档入口

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "AppLovin Cohort Enhancer",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "在 AppLovin Cohort 报表中显示可选的付费率、ARPPU、RPD、增长系数、留存衰退／倍率系数及区间颜色。数据仅在当前页面处理。",
   "permissions": [
     "storage"
@@ -13,6 +13,7 @@
       ],
       "js": [
         "core.js",
+        "mui.js",
         "adapter.js",
         "ui.js",
         "content.js"
@@ -20,6 +21,14 @@
       "css": [
         "styles.css"
       ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://ads.applovin.com/*"
+      ],
+      "js": ["mui-runtime.js"],
+      "world": "MAIN",
       "run_at": "document_idle"
     }
   ]

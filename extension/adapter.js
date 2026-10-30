@@ -6,6 +6,7 @@
   function mode(root) {
     const selected = [...root.querySelectorAll('input[type="radio"]:checked')].map(input => (input.closest('label') || input.parentElement).textContent);
     selected.push(...[...root.querySelectorAll('[role="radio"][aria-checked="true"], .arco-radio-checked')].map(el => el.textContent));
+    selected.push(...[...root.querySelectorAll('[role="combobox"]')].map(el => el.textContent));
     if (selected.some(text => A.normalize(text) === 'real time')) return 'realtime';
     return selected.some(text => A.normalize(text) === 'cohort') ? 'cohort' : 'unknown';
   }
@@ -27,9 +28,11 @@
   function discover(doc) {
     const area = doc.querySelector('[data-testid="report-table-area"]');
     if (!area) return { ok: false, reason: '尚未找到报表区域' };
-    const button = [...area.querySelectorAll('button')].find(el => !el.closest(owned) && A.normalize(el.textContent) === 'columns');
+    const button = [...area.querySelectorAll('button')].find(el => !el.closest(owned) && ['columns', 'view_column'].includes(A.normalize(el.textContent)));
     const tableRoot = area.querySelector('.arco-table');
     const base = { area, button, mode: mode(area) };
+    const grid = area.querySelector('.MuiDataGrid-root');
+    if (grid && A.mui) return A.mui.discover(base, grid);
     if (!tableRoot) return { ...base, ok: false, reason: '未识别当前表格结构' };
     if (area.querySelector('.arco-spin-loading, [aria-busy="true"]')) return { ...base, ok: false, reason: '报表正在加载' };
     const headTables = [...tableRoot.querySelectorAll('.arco-table-header table')];
@@ -58,6 +61,8 @@
       signature: JSON.stringify([headers.map(h => h.text), rows.map(r => [r.total, r.signature]), widths, base.mode]) };
   }
   function renderer(doc, onResize = () => {}, onReorder = () => {}) {
+    A.mui?.bind(onResize, onReorder);
+    let muiActive = false;
     let cancelDrag = null, draggedId = null;
     const cleanups = [];
     let relayout = () => {};
@@ -69,6 +74,7 @@
       changes.get(el).set(property, { old, written: el.style.getPropertyValue(property) });
     }
     function reset() {
+      if (muiActive) { A.mui.reset(); muiActive = false; }
       cancelDrag?.(); cancelDrag = null; draggedId = null;
       cleanups.splice(0).forEach(fn => fn()); relayout = () => {};
       for (const el of added) el.remove();
@@ -97,6 +103,11 @@
       for (const child of cell.querySelectorAll('*')) writeStyle(child, 'color', A.textColor(color));
     }
     function render(snapshot, settings) {
+      if (snapshot.kind === 'mui') {
+        if (!muiActive) reset();
+        muiActive = true;
+        return A.mui.render(snapshot, settings);
+      }
       reset();
       if (!snapshot.ok || snapshot.mode !== 'cohort' || !settings.enabled) return [];
       const selected = A.visibleMetrics(settings, snapshot.available);

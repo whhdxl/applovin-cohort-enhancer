@@ -20,6 +20,7 @@
     if (!scope || !storage) return;
     const savedScope = scope;
     settings = { ...settings, widths: { ...settings.widths, [id]: width } };
+    if (snapshot.kind === 'mui') { lastSignature = ''; schedule(); }
     try { await storage.set({ [savedScope]: settings }); }
     catch { if (scope === savedScope && toolbar) { toolbar.textContent = '增强列 · 列宽未保存'; toolbar.title = '列宽仅本次生效；请刷新页面后重试保存'; } }
   }
@@ -107,10 +108,10 @@
     mutate(() => {
       ensureToolbar();
       const signature = snapshot.ok ? snapshot.signature : snapshot.reason;
-      const intact = !settings.enabled || !snapshot.ok || snapshot.mode !== 'cohort' || A.visibleMetrics(settings, snapshot.available).map(m => m.id)
+      const intact = !settings.enabled || !snapshot.ok || snapshot.mode !== 'cohort' || (snapshot.kind === 'mui' ? A.mui.intact(snapshot, settings) : A.visibleMetrics(settings, snapshot.available).map(m => m.id)
         .every(id => [...snapshot.headRow.querySelectorAll('[data-alx-metric]')].some(cell => cell.dataset.alxMetric === id)
           && snapshot.tables.every(table => table.querySelector(`col[data-alx-metric="${id}"]`))
-          && snapshot.rows.every(row => [...row.element.querySelectorAll('[data-alx-metric]')].some(cell => cell.dataset.alxMetric === id)));
+          && snapshot.rows.every(row => [...row.element.querySelectorAll('[data-alx-metric]')].some(cell => cell.dataset.alxMetric === id))));
       if (signature !== lastSignature || snapshot.root !== oldRoot || !intact) {
         renderer.render(snapshot, { ...settings, enabled: settings.enabled && Boolean(scope) && Boolean(storage) });
         lastSignature = signature; oldRoot = snapshot.root || oldRoot;
@@ -143,6 +144,9 @@
     }
   };
   doc.addEventListener('change', onChange, true); doc.addEventListener('click', onClick, true);
+  let muiStatus = '';
+  const onMuiStatus = event => { if (event.detail !== muiStatus) { muiStatus = event.detail; schedule(); } };
+  doc.addEventListener('alx:mui:status', onMuiStatus);
   // SPA navigation does not always emit popstate; this only checks URL/root identity.
   const navigation = setInterval(() => {
     const onReport = /^\/analytics\/reports\/?$/.test(location.pathname);
@@ -155,6 +159,7 @@
   A.stop = () => {
     stopped = true; clearInterval(navigation); clearTimeout(timer); observer.disconnect(); renderer.reset();
     toolbar?.remove(); modeButton?.remove(); panel?.close(); doc.removeEventListener('change', onChange, true); doc.removeEventListener('click', onClick, true);
+    doc.removeEventListener('alx:mui:status', onMuiStatus);
     extensionAPI?.storage?.onChanged?.removeListener(onStorage);
   };
   refresh();
