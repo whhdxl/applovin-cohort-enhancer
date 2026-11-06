@@ -222,6 +222,11 @@
   // The site's rolling-window boundary and ingestion delay are not yet verified.
   // Never infer maturity from a non-zero future column or invent a delay threshold.
   const maturity = () => ({ state: 'unknown', label: '成熟度待确认', reason: '尚未核验 AppLovin 窗口端点与回传延迟，当前值不代表完整周期结果' });
-  globalThis.ALX = { days, types, pairs, retentionPairs, retentionMultiplierPairs, fields, metrics, byId, normalize, fieldId: text => names.get(normalize(text)) || null,
+  const csv = rows => '\ufeff' + rows.map(row => row.map(value => {
+    let text = String(value ?? '');
+    if (/^[\s]*[=+@-]/.test(text) && !/^-?\d+(?:\.\d+)?%?$/.test(text)) text = "'" + text;
+    return '"' + text.replaceAll('"', '""') + '"';
+  }).join(',')).join('\r\n');
+  globalThis.ALX = { csv, days, types, pairs, retentionPairs, retentionMultiplierPairs, fields, metrics, byId, normalize, fieldId: text => names.get(normalize(text)) || null,
     parseValue, capability, calculate, label, format, defaults, normalizeSettings, validateRules, colorFor, textColor, scopeKey, maturity, clampWidth, defaultColor, cellColor, chosenIds, visibleMetrics, moveMetric, orderedIds, defaultWidth };
 })();

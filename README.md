@@ -2,7 +2,7 @@
 
 English | [简体中文](README.zh-CN.md)
 
-A desktop browser WebExtension that adds calculated columns and color rules to AppLovin Ads Cohort reports. The current version is `0.1.11` and has no third-party runtime dependencies.
+A desktop browser WebExtension that adds calculated columns and color rules to AppLovin Ads Cohort reports. The current version is `0.1.12` and has no third-party runtime dependencies.
 
 ## Features
 
@@ -69,7 +69,7 @@ npm run preview
 - `npm run build` regenerates the MAIN-world MUI runtime from the shared calculation core and MUI adapter; run it after editing either source.
 - `npm test` covers formulas, invalid input, DOM adaptation, Total rows, refresh behavior, account isolation, Apply/Cancel, and restoration.
 - `npm run check` validates JavaScript syntax, the extension manifest, asset references, and static network/HTML-injection boundaries.
-- `npm run package` creates `dist/applovin-cohort-enhancer-0.1.11.zip` containing extension files only.
+- `npm run package` creates `dist/applovin-cohort-enhancer-0.1.12.zip` containing extension files only.
 - `npm run preview` serves a synthetic report at `127.0.0.1:4173`. Open `/analytics/reports?accountId=demo&reportId=preview`. The demo reuses the extension source and stores demo preferences on localhost through a demo-only storage substitute.
 
 ## Documentation
@@ -85,3 +85,7 @@ npm run preview
 - [Packaging a Web Extension for Safari](https://developer.apple.com/documentation/safariservices/packaging-a-web-extension-for-safari): explains Safari host apps and Xcode project generation.
 
 New Primary columns added after Run are inserted into the left-hand dimension area in native order, while existing columns retain their custom relative order.
+
+## Enhanced CSV export
+
+On MUI reports, click **导出增强 CSV** beside the display-mode button. It downloads locally loaded detail rows and the native Total, with visible native and enhanced columns in display order. Available native sort order is preserved. It does not fetch unloaded pages or include colors. Percentages and estimation marks are retained; UTF-8 BOM supports Excel. Formula-like text is escaped. Export is unavailable while loading or enhancements are disabled; the official CSV export is unchanged.

@@ -223,7 +223,12 @@
   // The site's rolling-window boundary and ingestion delay are not yet verified.
   // Never infer maturity from a non-zero future column or invent a delay threshold.
   const maturity = () => ({ state: 'unknown', label: '成熟度待确认', reason: '尚未核验 AppLovin 窗口端点与回传延迟，当前值不代表完整周期结果' });
-  globalThis.ALX = { days, types, pairs, retentionPairs, retentionMultiplierPairs, fields, metrics, byId, normalize, fieldId: text => names.get(normalize(text)) || null,
+  const csv = rows => '\ufeff' + rows.map(row => row.map(value => {
+    let text = String(value ?? '');
+    if (/^[\s]*[=+@-]/.test(text) && !/^-?\d+(?:\.\d+)?%?$/.test(text)) text = "'" + text;
+    return '"' + text.replaceAll('"', '""') + '"';
+  }).join(',')).join('\r\n');
+  globalThis.ALX = { csv, days, types, pairs, retentionPairs, retentionMultiplierPairs, fields, metrics, byId, normalize, fieldId: text => names.get(normalize(text)) || null,
     parseValue, capability, calculate, label, format, defaults, normalizeSettings, validateRules, colorFor, textColor, scopeKey, maturity, clampWidth, defaultColor, cellColor, chosenIds, visibleMetrics, moveMetric, orderedIds, defaultWidth };
 })();
 
@@ -405,7 +410,46 @@
         current.api.setColumnVisibilityModel(model); current.active = false;
       }
       publish({ ok: false, reason: `新版网格适配失败：${error instanceof Error ? error.name : 'UnknownError'}` });
-    } finally { applying = false; }
+    } finally { applying = false; exportControl(); }
+  }
+  function exportCsv() {
+    tick();
+    if (!current?.active) return;
+    const props = locate(current.root);
+    if (!props || props.loading || props.rows !== current.rowsRef) return;
+    const columns = current.api.getVisibleColumns();
+    const byId = new Map(props.rows.map(row => [current.api.getRowId?.(row) ?? row.__rowId, row]));
+    const sortedIds = current.api.getSortedRowIds?.();
+    const detail = sortedIds ? sortedIds.filter(id => byId.has(id)).map(id => byId.get(id)) : props.rows;
+    const rows = [...detail, ...(props.pinnedRows?.bottom || [])];
+    const lines = [columns.map(c => c.headerName || c.field), ...rows.map(row => columns.map(col => {
+      const metric = col.field.startsWith(prefix) && A.byId.get(col.field.slice(prefix.length));
+      if (metric) {
+        const result = A.calculate(metric, valuesFor(row, current.columns));
+        return `${result.estimate ? '≈ ' : ''}${A.format(metric, result)}`;
+      }
+      if (row.__isAdsTableV2SummaryRow && col === columns[0] && !A.fieldId(col.headerName)) return 'Total';
+      const value = row[col.field];
+      const field = A.fields.get(A.fieldId(col.headerName));
+      return value == null ? '' : field?.unit === 'percent' && /^-?\d+(?:\.\d+)?$/.test(String(value)) ? `${value}%` : String(value);
+    }))];
+    const url = URL.createObjectURL(new Blob([A.csv(lines)], { type: 'text/csv;charset=utf-8' }));
+    const link = doc.createElement('a'); link.href = url; link.download = 'applovin-enhanced.csv'; link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  let exportButton;
+  function exportControl() {
+    if (!current?.active) { exportButton?.remove(); exportButton = null; return; }
+    const anchor = doc.querySelector('[data-alx-owned="display-mode"]');
+    if (!anchor) return;
+    if (!exportButton?.isConnected) {
+      exportButton = doc.createElement('button'); exportButton.type = 'button';
+      exportButton.className = 'alx-toolbar-button'; exportButton.dataset.alxOwned = 'export';
+      exportButton.textContent = '导出增强 CSV';
+      exportButton.title = '导出当前已加载报表行及 Total，包含当前显示的增强列；不请求其他分页，CSV 不保留颜色';
+      exportButton.addEventListener('click', exportCsv);
+      anchor.after(exportButton);
+    }
   }
   function publish(detail) { const text = JSON.stringify(detail); if (text !== lastStatus) { lastStatus = text; send('status', detail); } }
   function config(event) {
@@ -465,5 +509,5 @@
   doc.addEventListener('pointerdown', pointerDown, true); doc.addEventListener('pointermove', pointerMove, { passive: false });
   doc.addEventListener('pointerup', pointerUp); doc.addEventListener('pointercancel', cancel); window.addEventListener('blur', cancel);
   const timer = setInterval(tick, 300); tick();
-  A.stopMui = () => { stopped = true; clearInterval(timer); cancel(); hide(current); doc.removeEventListener('click', headerClick, true); doc.removeEventListener('keydown', keydown, true); doc.removeEventListener('alx:mui:probe', probe); doc.removeEventListener('alx:mui:config', config); doc.removeEventListener('pointerdown', pointerDown, true); doc.removeEventListener('pointermove', pointerMove); doc.removeEventListener('pointerup', pointerUp); doc.removeEventListener('pointercancel', cancel); window.removeEventListener('blur', cancel); };
+  A.stopMui = () => { stopped = true; exportButton?.remove(); clearInterval(timer); cancel(); hide(current); doc.removeEventListener('click', headerClick, true); doc.removeEventListener('keydown', keydown, true); doc.removeEventListener('alx:mui:probe', probe); doc.removeEventListener('alx:mui:config', config); doc.removeEventListener('pointerdown', pointerDown, true); doc.removeEventListener('pointermove', pointerMove); doc.removeEventListener('pointerup', pointerUp); doc.removeEventListener('pointercancel', cancel); window.removeEventListener('blur', cancel); };
 })();

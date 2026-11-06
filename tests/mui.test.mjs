@@ -125,3 +125,26 @@ test('MUI missing fields remove dependent metrics; mode and width settings persi
     assert.deepEqual(f.api.getPinnedColumns(), {});
   } finally { f.close(); }
 });
+
+test('enhanced CSV includes offscreen selected metrics and Total; unavailable while loading', async () => {
+  const f = fixture();
+  try {
+    let output = '', downloads = 0;
+    f.w.Blob = class { constructor(parts) { this.text = parts.join(''); } };
+    f.w.URL.createObjectURL = blob => { output = blob.text; return 'blob:test'; };
+    f.w.URL.revokeObjectURL = () => {};
+    f.w.HTMLAnchorElement.prototype.click = function () { downloads++; assert.equal(this.download, 'applovin-enhanced.csv'); };
+    await wait(450);
+    f.doc.querySelector('[data-alx-owned="export"]').click();
+    assert.equal(downloads, 1);
+    assert.match(output, /D1 IAP ARPPU/);
+    assert.match(output, /≈ 20.00/);
+    assert.match(output, /"Total"/);
+    assert.match(output, /"40%"/);
+    assert.equal(output.split('\r\n').length, 3);
+    f.props.loading = true;
+    f.doc.querySelector('[data-alx-owned="export"]').click();
+    assert.equal(downloads, 1);
+    assert.equal(f.doc.querySelector('[data-alx-owned="export"]'), null);
+  } finally { f.close(); }
+});

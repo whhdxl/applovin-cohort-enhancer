@@ -2,7 +2,7 @@
 
 [English](README.md) | 简体中文
 
-为 AppLovin Ads 的 Cohort 报表增加计算列和颜色设置的桌面浏览器 WebExtension。当前版本 `0.1.11`，无第三方运行时依赖。
+为 AppLovin Ads 的 Cohort 报表增加计算列和颜色设置的桌面浏览器 WebExtension。当前版本 `0.1.12`，无第三方运行时依赖。
 
 ## 当前功能
 
@@ -69,7 +69,7 @@ npm run preview
 - `npm run build`：从共享计算层和 MUI 适配源码生成页面环境运行文件；修改任一源码后执行。
 - `npm test`：公式、异常输入、DOM 适配、Total、刷新、账号隔离、应用／取消和恢复测试。
 - `npm run check`：JavaScript 语法、清单及资源引用、静态网络与 HTML 注入边界检查。
-- `npm run package`：生成 `dist/applovin-cohort-enhancer-0.1.11.zip`，仅包含扩展文件。
+- `npm run package`：生成 `dist/applovin-cohort-enhancer-0.1.12.zip`，仅包含扩展文件。
 - `npm run preview`：在 `127.0.0.1:4173` 提供合成报表，访问 `/analytics/reports?accountId=demo&reportId=preview`。演示页复用扩展源码，通过仅存在于 demo 的存储替身将演示偏好保存在 localhost。
 
 ## 文档入口
@@ -85,3 +85,7 @@ npm run preview
 - [Apple Safari Web Extension 打包说明](https://developer.apple.com/documentation/safariservices/packaging-a-web-extension-for-safari)：Safari 宿主应用和 Xcode 工程生成方式。
 
 Run 后新增的 Primary columns 按官方顺序插入左侧维度区，已有列保留手动相对顺序。
+
+## 导出增强 CSV
+
+新版 MUI 报表在展示类型旁提供“导出增强 CSV”。一键下载当前已加载明细及原生 Total，按当前列序包含可见原始列和增强列，并沿用可获取的原生排序。不会请求未加载分页，CSV 不保留颜色。保留百分号和估算标记，使用 UTF-8 BOM 兼容 Excel，并转义公式型文本。加载期间或关闭增强时不可导出；官方原始 CSV 导出保持不变。

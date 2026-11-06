@@ -125,3 +125,7 @@ test('saved category-shaped order cannot override period grouping', () => {
   const groups = A.orderedIds({ ...settings, order: reversed }).map(id => A.byId.get(id).group);
   assert.equal(groups.filter((g, i) => i === 0 || g !== groups[i - 1]).length, new Set(groups).size);
 });
+
+test('CSV preserves Unicode, quotes and newlines and neutralizes spreadsheet formulas', () => {
+  assert.equal(A.csv([['中文', 'a,b', '"x"', 'a\nb'], ['=SUM(A1)', '-12', null]]), '\ufeff"中文","a,b","""x""","a\nb"\r\n"\'=SUM(A1)","-12",""');
+});
